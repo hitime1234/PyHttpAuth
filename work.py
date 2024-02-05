@@ -94,7 +94,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 
 def main():
-    port = 80
+    port = 8000
     server_address = ('', port)
     server = HTTPServer(server_address, RequestHandler)
     print('Server running on port %s' % port)
