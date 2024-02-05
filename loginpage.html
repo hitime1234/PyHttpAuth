@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login yae.gay</title>
+    <style>
+        .logo {
+            padding-right: 5%;
+            font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif
+        }
+        html{
+            background-color: rgb(151, 145, 145);
+        }
+        .center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            min-height: 100vh;
+            
+        }
+        .button {
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+        .button:hover {
+            
+            color: rgb(128, 17, 17);
+        }
+        .border {
+            
+            border: 5px  rgb(155, 67, 238);
+            border-style:double;
+            padding: 20px;
+            background-color: rgb(168, 202, 192);
+        }
+
+    </style>
+    <script>
+        function myFunction(textBoxValue,textBoxValue2) {
+            window.location = "profile"
+        }
+
+        function poster(textBoxValue,textBoxValue2) {
+            fetch(window.location.host, {
+            
+            method: "POST",
+            mode:"no-cors",
+            body: JSON.stringify({
+                username: textBoxValue,
+                password: textBoxValue2,
+                type: "AUTHENTICATE",
+                
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8",
+                
+                
+            }
+            })
+            .then((response) => {
+                return response.text();
+                
+            }).then((data) => {
+                console.log(data);
+            }).finally(() => {
+                myFunction(textBoxValue,textBoxValue2);
+            });
+
+        }
+    </script>
+</head>
+<body>
+    
+    <div class="center">    
+        <div class="logo">
+            <h1 >Login Required</h1>
+        </div>
+        <div class="border">        
+            <form id='loginForm' action='signedIn.xxx' method='post'>
+                <p>Username</p>
+                <input type="text" name="username" id="myTextBox">
+                <p>password</p>
+                <input type="password" name="password" id="myTextBoxer">
+            </form>
+            <div class="button">
+                <!-- <button class="button" onclick="myFunction(document.getElementById('myTextBox').value,document.getElementById('myTextBoxer').value)">Click Me</button> -->
+                <button class="button" onclick="poster(document.getElementById('myTextBox').value,document.getElementById('myTextBoxer').value)">Submit</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
