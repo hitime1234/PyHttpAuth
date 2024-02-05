@@ -2,11 +2,15 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 import json 
 from hashlib import sha256
 import random,string
+import threading
 
-global cookieJar
+import cookieJar
+
+global cookies
+cookies = cookieJar.CookieJar()
 global UserList
 UserList = {'admin':'admin', 'user':'user', 'guest':'guest'}
-cookieJar = {}
+
 
 
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
@@ -28,17 +32,19 @@ class RequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        global cookieJar
+        global cookies
         cookie = self.headers.get('Cookie')
         admin = False
+        
         if cookie:
             try:
-                if cookie.split("=")[1] in cookieJar:                    
+                USERNAME = cookies.get_username(cookie.split("=")[1])
+                if cookies.has_cookie(cookie.split("=")[1]):
                     admin = True
-                    USERNAME = cookieJar[cookie.split("=")[1]]
                 else:
                     admin = False
-                    USERNAME = "NULL"
+                    
+                
             except Exception as e:
               admin = False
         
@@ -65,7 +71,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         if username in UserList:
             if UserList[username] == password:
                 passer = passer
-                cookieJar[passer] = username
+                cookies.add_cookie(passer, username)
                 auth = True
 
         reply = str("auth" + "=" + passer + ';' +"same-site=strict" + ";" + "secure" + ";" + "httponly" + ";" + "samesite=strict" + ";" + "path=/")
@@ -82,7 +88,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 
     def do_POST(self):         
-        global cookieJar, UserList          
+        global cookies, UserList          
         content_length = int(self.headers['Content-Length']) # Gets the size of data
         post_data = self.rfile.read(content_length) # Gets the data itself
         postJson = json.loads(post_data.decode('utf-8'))
@@ -90,7 +96,17 @@ class RequestHandler(BaseHTTPRequestHandler):
         RequestType = postJson['type']
         if RequestType == "AUTHENTICATE":
             self.Auth(postJson)
-        
+
+
+def https():
+    import ssl
+    #work in progress
+    httpd = HTTPServer(('localhost', 8000), RequestHandler)
+    sslctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    sslctx.check_hostname = False 
+    sslctx.load_cert_chain(certfile='certificate.pem', keyfile="private.pem")
+    httpd.socket = sslctx.wrap_socket(httpd.socket, server_side=True)
+    httpd.serve_forever()
 
 
 def main():
@@ -99,6 +115,7 @@ def main():
     server = HTTPServer(server_address, RequestHandler)
     print('Server running on port %s' % port)
     server.serve_forever()
+
 
 
 
